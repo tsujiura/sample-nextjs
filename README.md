@@ -34,3 +34,8 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Usage
+
+1. npm install @mui/material @emotion/react @emotion/styled @mui/material-nextjs @emotion/cache @mui/icons-material @mui/x-data-grid-pro lru-cache @tanstack/react-query zustand
+2. npm install --save-dev msw orval json-schema-faker vitest @types/json-schema-faker @testing-library/react @testing-library/jest-dom
