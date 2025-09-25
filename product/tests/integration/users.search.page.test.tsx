@@ -5,6 +5,7 @@ import userEvent from "@testing-library/user-event";
 import Providers, { createTestQueryClient } from "@/app/providers";
 import UsersSearchPageClient from "@/app/users/search/search-client";
 import { reloadEnv } from "@/config/env";
+import { startMockServer, stopMockServer } from "@/mocks/msw/node";
 import { server } from "@/mocks/msw/server";
 
 const skillOptions = [
@@ -30,7 +31,7 @@ const capturedRequests: CapturedRequest[] = [];
 let unsubscribeFromEvents: (() => void) | undefined;
 
 beforeAll(() => {
-  server.listen({ onUnhandledRequest: "error" });
+  startMockServer();
   const subscription = server.events.on("request:match", ({ request }) => {
     capturedRequests.push({ url: new URL(request.url) });
   });
@@ -48,7 +49,7 @@ afterEach(() => {
 
 afterAll(() => {
   unsubscribeFromEvents?.();
-  server.close();
+  stopMockServer();
 });
 
 function renderPage() {
@@ -122,8 +123,9 @@ it("allows searching users by identifier fragments", async () => {
 
   const departmentSelect = screen.getByLabelText("部署");
   await user.click(departmentSelect);
-  const departmentOption = await screen.findByRole("option", { name: "開発" });
-  await user.click(departmentOption);
+  await user.click(await screen.findByRole("option", { name: "開発" }));
+  await user.click(await screen.findByRole("option", { name: "デザイン" }));
+  await user.keyboard("{Escape}");
 
   const joinedAfterInput = screen.getByLabelText("入社日 (以降)");
   fireEvent.change(joinedAfterInput, { target: { value: "2022-01-01" } });
@@ -144,7 +146,7 @@ it("allows searching users by identifier fragments", async () => {
   expect(lastRequest?.url.pathname).toBe("/api/users");
   expect(lastRequest?.url.searchParams.get("q")).toBe("1");
   expect(lastRequest?.url.searchParams.getAll("skills")).toEqual(["frontend"]);
-  expect(lastRequest?.url.searchParams.get("department")).toBe("development");
+  expect(lastRequest?.url.searchParams.getAll("departments")).toEqual(["development", "design"]);
   expect(lastRequest?.url.searchParams.get("joinedAfter")).toBe("2022-01-01");
   expect(lastRequest?.url.searchParams.get("sort")).toBe("joined-desc");
   expect(lastRequest?.url.searchParams.getAll("features")).toEqual([
@@ -155,5 +157,6 @@ it("allows searching users by identifier fragments", async () => {
   expect(await screen.findByRole("cell", { name: "山田太郎" })).toBeTruthy();
   expect(window.location.search).toContain("q=1");
   expect(window.location.search).toContain("skills=frontend");
-  expect(window.location.search).toContain("department=development");
+  expect(window.location.search).toContain("departments=development");
+  expect(window.location.search).toContain("departments=design");
 });

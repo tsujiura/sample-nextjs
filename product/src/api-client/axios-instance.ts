@@ -1,12 +1,16 @@
-import axios from "axios";
+import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 
 import { ENV } from "@/config/env";
 
-export const axiosInstance = axios.create({
+const instance = axios.create({
   baseURL: ENV.apiBaseUrl,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-export default axiosInstance;
+export const axiosInstance = <T = unknown, R = AxiosResponse<T>>(config: AxiosRequestConfig<T>) => {
+  return instance.request<T, R>(config);
+};
+
+export default instance;

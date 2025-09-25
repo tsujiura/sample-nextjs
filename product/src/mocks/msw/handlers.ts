@@ -1,52 +1,18 @@
 import { http, HttpResponse } from "msw";
 
 import { ENV } from "@/config/env";
-
-type User = {
-  id: string;
-  name: string;
-  email: string;
-  department: string;
-  employment: string;
-  joinedAt: string;
-  skills: string[];
-  features: string[];
-};
-
-const USERS_FIXTURE: User[] = [
-  {
-    id: "1",
-    name: "山田太郎",
-    email: "taro@example.com",
-    department: "development",
-    employment: "full-time",
-    joinedAt: "2023-05-10",
-    skills: ["frontend", "management"],
-    features: ["remote", "mentor"],
-  },
-  {
-    id: "2",
-    name: "鈴木花子",
-    email: "hanako@example.com",
-    department: "design",
-    employment: "contract",
-    joinedAt: "2022-11-01",
-    skills: ["design", "frontend"],
-    features: ["remote", "leader"],
-  },
-  {
-    id: "3",
-    name: "佐藤次郎",
-    email: "jiro@example.com",
-    department: "sales",
-    employment: "full-time",
-    joinedAt: "2021-07-15",
-    skills: ["backend", "qa"],
-    features: ["newgrad"],
-  },
-];
+import {
+  DEPARTMENT_OPTIONS,
+  SKILL_OPTIONS,
+  USERS_FIXTURE,
+} from "./data/users";
 
 const usersEndpoint = new URL("/api/users", ENV.apiBaseUrl).toString();
+const departmentFiltersEndpoint = new URL(
+  "/api/users/filters/departments",
+  ENV.apiBaseUrl,
+).toString();
+const skillFiltersEndpoint = new URL("/api/users/filters/skills", ENV.apiBaseUrl).toString();
 
 export const handlers = [
   http.get(usersEndpoint, ({ request }) => {
@@ -56,7 +22,7 @@ export const handlers = [
     const normalizedKeywordLower = normalizedKeyword.toLowerCase();
 
     const skills = url.searchParams.getAll("skills");
-    const department = url.searchParams.get("department") ?? "";
+    const departments = url.searchParams.getAll("departments");
     const joinedAfter = url.searchParams.get("joinedAfter") ?? "";
     const sortOrder = url.searchParams.get("sort") ?? "joined-desc";
     const features = url.searchParams.getAll("features");
@@ -73,7 +39,7 @@ export const handlers = [
         skills.length === 0 || skills.every((skill) => user.skills.includes(skill));
 
       const matchesDepartment =
-        department.length === 0 || user.department === department;
+        departments.length === 0 || departments.includes(user.department);
 
       const matchesJoinedAfter =
         joinedAfter.length === 0 || user.joinedAt >= joinedAfter;
@@ -99,5 +65,11 @@ export const handlers = [
     });
 
     return HttpResponse.json({ users });
+  }),
+  http.get(skillFiltersEndpoint, () => {
+    return HttpResponse.json({ items: [...SKILL_OPTIONS] });
+  }),
+  http.get(departmentFiltersEndpoint, () => {
+    return HttpResponse.json({ items: [...DEPARTMENT_OPTIONS] });
   }),
 ];

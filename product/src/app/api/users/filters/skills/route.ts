@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-import { getSkillOptions } from "@/services/user-filter-options";
+import { fetchFromUsersApi, toNextResponse } from "../../_utils/upstream";
 
-export async function GET() {
-  const items = await getSkillOptions();
-  return NextResponse.json({ items });
+export async function GET(request: NextRequest) {
+  const upstreamResponse = await fetchFromUsersApi("/api/users/filters/skills", request);
+  return await toNextResponse(upstreamResponse);
 }

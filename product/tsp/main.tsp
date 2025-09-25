@@ -1,7 +1,9 @@
 import "@typespec/http";
+import "@typespec/openapi";
 import "@typespec/openapi3";
 
 using TypeSpec.Http;
+using TypeSpec.OpenAPI;
 
 namespace SampleApi;
 
@@ -11,8 +13,15 @@ model User {
   email: string;
 }
 
-@service({
+model FilterOption {
+  value: string;
+  label: string;
+}
+
+@service(#{
   title: "Sample User API",
+})
+@info(#{
   version: "1.0.0",
 })
 @route("/api")
@@ -23,4 +32,21 @@ namespace UsersService {
     @statusCode status: 200;
     @body users: User[];
   };
+
+  @route("/users/filters")
+  namespace Filters {
+    @route("/skills")
+    @get
+    op listUserSkillOptions(): {
+      @statusCode status: 200;
+      @body items: FilterOption[];
+    };
+
+    @route("/departments")
+    @get
+    op listUserDepartmentOptions(): {
+      @statusCode status: 200;
+      @body items: FilterOption[];
+    };
+  }
 }

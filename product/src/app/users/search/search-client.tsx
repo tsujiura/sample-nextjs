@@ -18,6 +18,7 @@ import {
   FormGroup,
   FormLabel,
   InputLabel,
+  ListItemText,
   MenuItem,
   Paper,
   Radio,
@@ -41,6 +42,12 @@ import type {
   DepartmentOption,
   SkillOption,
 } from "@/services/user-filter-options";
+import {
+  hasMeaningfulFilters,
+  mapSkillsToOptions,
+  parseFilters,
+  type SearchFilters,
+} from "./filter-utils";
 
 type User = {
   id: string;
@@ -58,15 +65,6 @@ type UsersResponse = {
 type UsersSearchPageClientProps = {
   skillOptions: SkillOption[];
   departmentOptions: DepartmentOption[];
-};
-
-type SearchFilters = {
-  keyword: string;
-  skills: string[];
-  department: string | null;
-  joinedAfter: string | null;
-  sortOrder: string | null;
-  features: string[];
 };
 
 const sortOptions = [
@@ -87,39 +85,12 @@ const employmentLabels: Record<string, string> = {
   intern: "インターン",
 };
 
-function parseFilters(searchParams: URLSearchParams): SearchFilters {
-  const keyword = searchParams.get("q")?.trim() ?? "";
-  const skills = searchParams.getAll("skills");
-  const department = searchParams.get("department");
-  const joinedAfter = searchParams.get("joinedAfter");
-  const sortOrder = searchParams.get("sort");
-  const features = searchParams.getAll("features");
-
-  return {
-    keyword,
-    skills,
-    department: department && department.length > 0 ? department : null,
-    joinedAfter: joinedAfter && joinedAfter.length > 0 ? joinedAfter : null,
-    sortOrder: sortOrder && sortOrder.length > 0 ? sortOrder : null,
-    features,
-  };
-}
-
-function mapSkillsToOptions(
-  values: string[],
-  options: SkillOption[],
-): SkillOption[] {
-  return values
-    .map((value) => options.find((option) => option.value === value))
-    .filter((option): option is SkillOption => Boolean(option));
-}
-
 async function fetchUsers(filters: SearchFilters): Promise<User[]> {
   const response = await axiosInstance.get<UsersResponse>("/api/users", {
     params: {
       q: filters.keyword,
       skills: filters.skills,
-      department: filters.department ?? undefined,
+      departments: filters.departments,
       joinedAfter: filters.joinedAfter ?? undefined,
       sort: filters.sortOrder ?? undefined,
       features: filters.features,
@@ -148,12 +119,8 @@ function UsersSearchPageContent({
 
   const [keyword, setKeyword] = useState(filterState.keyword);
   const [skills, setSkills] = useState<string[]>(filterState.skills);
-  const [department, setDepartment] = useState<string | null>(
-    filterState.department,
-  );
-  const [joinedAfter, setJoinedAfter] = useState<string | null>(
-    filterState.joinedAfter,
-  );
+  const [departments, setDepartments] = useState<string[]>(filterState.departments);
+  const [joinedAfter, setJoinedAfter] = useState<string | null>(filterState.joinedAfter);
   const [sortOrder, setSortOrder] = useState<string | null>(
     filterState.sortOrder ?? sortOptions[0]?.value ?? null,
   );
@@ -162,21 +129,16 @@ function UsersSearchPageContent({
   useEffect(() => {
     setKeyword(filterState.keyword);
     setSkills(filterState.skills);
-    setDepartment(filterState.department);
+    setDepartments(filterState.departments);
     setJoinedAfter(filterState.joinedAfter);
     setSortOrder(filterState.sortOrder ?? sortOptions[0]?.value ?? null);
     setFeatures(filterState.features);
   }, [filterState]);
 
-  const hasMeaningfulFilters = useMemo(() => {
-    return (
-      (filterState.keyword?.length ?? 0) > 0 ||
-      filterState.skills.length > 0 ||
-      Boolean(filterState.department) ||
-      Boolean(filterState.joinedAfter) ||
-      filterState.features.length > 0
-    );
-  }, [filterState]);
+  const filtersAreMeaningful = useMemo(
+    () => hasMeaningfulFilters(filterState),
+    [filterState],
+  );
 
   const departmentLabelMap = useMemo(() => {
     return new Map(departmentOptions.map((option) => [option.value, option.label]));
@@ -187,7 +149,7 @@ function UsersSearchPageContent({
       "users",
       filterState.keyword,
       [...filterState.skills].sort().join(","),
-      filterState.department ?? "",
+      [...filterState.departments].sort().join(","),
       filterState.joinedAfter ?? "",
       filterState.sortOrder ?? "",
       [...filterState.features].sort().join(","),
@@ -198,7 +160,7 @@ function UsersSearchPageContent({
   const { data: users = [], isFetching } = useQuery({
     queryKey,
     queryFn: () => fetchUsers(filterState),
-    enabled: hasMeaningfulFilters,
+    enabled: filtersAreMeaningful,
     staleTime: 0,
   });
 
@@ -217,8 +179,8 @@ function UsersSearchPageContent({
         skills.forEach((value) => params.append("skills", value));
       }
 
-      if (department) {
-        params.set("department", department);
+      if (departments.length > 0) {
+        departments.forEach((value) => params.append("departments", value));
       }
 
       if (joinedAfter) {
@@ -238,7 +200,7 @@ function UsersSearchPageContent({
 
       router.replace(nextUrl, { scroll: false });
     },
-    [keyword, skills, department, joinedAfter, sortOrder, features, pathname, router],
+    [keyword, skills, departments, joinedAfter, sortOrder, features, pathname, router],
   );
 
   const selectedSkillOptions = useMemo(
@@ -246,18 +208,15 @@ function UsersSearchPageContent({
     [skills, skillOptions],
   );
 
-  const handleFeatureToggle = useCallback(
-    (featureValue: string) => {
-      setFeatures((current) => {
-        if (current.includes(featureValue)) {
-          return current.filter((value) => value !== featureValue);
-        }
+  const handleFeatureToggle = useCallback((featureValue: string) => {
+    setFeatures((current) => {
+      if (current.includes(featureValue)) {
+        return current.filter((value) => value !== featureValue);
+      }
 
-        return [...current, featureValue];
-      });
-    },
-    [],
-  );
+      return [...current, featureValue];
+    });
+  }, []);
 
   return (
     <Stack spacing={4} sx={{ p: { xs: 3, md: 6 } }}>
@@ -293,10 +252,7 @@ function UsersSearchPageContent({
           />
         </Box>
 
-        <FormControl
-          fullWidth
-          sx={{ gridColumn: { xs: "span 1", md: "span 2", xl: "span 1" } }}
-        >
+        <FormControl fullWidth sx={{ gridColumn: { xs: "span 1", md: "span 2", xl: "span 1" } }}>
           <Autocomplete
             multiple
             disableCloseOnSelect
@@ -318,28 +274,38 @@ function UsersSearchPageContent({
           />
         </FormControl>
 
-        <FormControl
-          fullWidth
-          sx={{ gridColumn: { xs: "span 1", md: "span 1" } }}
-        >
+        <FormControl fullWidth sx={{ gridColumn: { xs: "span 1", md: "span 1" } }}>
           <InputLabel id="department-select-label">部署</InputLabel>
           <Select
             labelId="department-select-label"
-            value={department ?? ""}
+            multiple
+            value={departments}
             label="部署"
             onChange={(event) => {
-              const value = event.target.value;
-              setDepartment(value === "" ? null : String(value));
+              const { value } = event.target;
+              setDepartments(
+                Array.isArray(value)
+                  ? value
+                  : typeof value === "string"
+                    ? value.split(",").filter(Boolean)
+                    : [],
+              );
             }}
+            renderValue={(selected) =>
+              (selected as string[])
+                .map((value) => departmentLabelMap.get(value) ?? value)
+                .join(", ")
+            }
           >
-            <MenuItem value="">
-              <em>指定なし</em>
-            </MenuItem>
-            {departmentOptions.map((option) => (
-              <MenuItem value={option.value} key={option.value}>
-                {option.label}
-              </MenuItem>
-            ))}
+            {departmentOptions.map((option) => {
+              const selected = departments.includes(option.value);
+              return (
+                <MenuItem key={option.value} value={option.value}>
+                  <Checkbox checked={selected} />
+                  <ListItemText primary={option.label} />
+                </MenuItem>
+              );
+            })}
           </Select>
         </FormControl>
 
@@ -357,10 +323,7 @@ function UsersSearchPageContent({
           />
         </Box>
 
-        <FormControl
-          component="fieldset"
-          sx={{ gridColumn: { xs: "span 1", md: "span 1" } }}
-        >
+        <FormControl component="fieldset" sx={{ gridColumn: { xs: "span 1", md: "span 1" } }}>
           <FormLabel id="sort-order-label">並び順</FormLabel>
           <RadioGroup
             row
@@ -434,7 +397,7 @@ function UsersSearchPageContent({
               </TableRow>
             )}
 
-            {!isFetching && !hasMeaningfulFilters && (
+            {!isFetching && !filtersAreMeaningful && (
               <TableRow>
                 <TableCell colSpan={5} align="center">
                   条件を入力して検索してください。
@@ -442,7 +405,7 @@ function UsersSearchPageContent({
               </TableRow>
             )}
 
-            {!isFetching && hasMeaningfulFilters && users.length === 0 && (
+            {!isFetching && filtersAreMeaningful && users.length === 0 && (
               <TableRow>
                 <TableCell colSpan={5} align="center">
                   条件に一致するユーザーが見つかりませんでした。
