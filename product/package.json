@@ -3,10 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
-    "start": "next start",
-    "lint": "eslint"
+    "dev": "cross-env APP_ENV=local NEXT_PUBLIC_API_MOCK=true next dev --turbopack",
+    "dev:stg": "cross-env APP_ENV=staging NEXT_PUBLIC_API_MOCK=false next dev --turbopack",
+    "build": "cross-env APP_ENV=production NEXT_PUBLIC_API_MOCK=false next build --turbopack",
+    "start": "cross-env APP_ENV=production NEXT_PUBLIC_API_MOCK=false next start",
+    "lint": "eslint",
+    "openapi": "tsp compile tsp --emit @typespec/openapi3",
+    "client": "orval --config orval.config.ts",
+    "gen": "npm run openapi && npm run client",
+    "test:unit": "vitest run",
+    "test:integration": "vitest run tests/integration"
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",
@@ -17,6 +23,7 @@
     "@mui/material-nextjs": "^7.3.2",
     "@tanstack/react-query": "^5.90.2",
     "axios": "^1.12.2",
+    "dotenv": "^16.4.5",
     "lru-cache": "^11.2.2",
     "next": "15.5.4",
     "react": "19.1.0",
@@ -39,5 +46,10 @@
     "orval": "^7.11.2",
     "typescript": "^5",
     "vitest": "^3.2.4"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }

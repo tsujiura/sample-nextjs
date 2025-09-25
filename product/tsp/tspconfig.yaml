@@ -1,0 +1,6 @@
+emitters:
+  "@typespec/openapi3":
+    output-file: ../openapi/openapi.json
+    emitter-output-dir: ../openapi
+compiler-options:
+  trace: false
