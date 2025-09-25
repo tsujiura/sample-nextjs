@@ -1,11 +1,26 @@
 import React from "react";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import Providers, { createTestQueryClient } from "@/app/providers";
-import UsersSearchPage from "@/app/users/search/page";
+import UsersSearchPageClient from "@/app/users/search/search-client";
 import { reloadEnv } from "@/config/env";
 import { server } from "@/mocks/msw/server";
+
+const skillOptions = [
+  { value: "frontend", label: "フロントエンド" },
+  { value: "backend", label: "バックエンド" },
+  { value: "design", label: "デザイン" },
+  { value: "management", label: "マネジメント" },
+  { value: "qa", label: "QA" },
+];
+
+const departmentOptions = [
+  { value: "sales", label: "営業" },
+  { value: "development", label: "開発" },
+  { value: "design", label: "デザイン" },
+  { value: "hr", label: "人事" },
+];
 
 type CapturedRequest = {
   url: URL;
@@ -41,7 +56,10 @@ function renderPage() {
 
   return render(
     <Providers queryClient={queryClient}>
-      <UsersSearchPage />
+      <UsersSearchPageClient
+        skillOptions={skillOptions}
+        departmentOptions={departmentOptions}
+      />
     </Providers>,
   );
 }
@@ -97,6 +115,24 @@ it("allows searching users by identifier fragments", async () => {
   await user.clear(keywordInput);
   await user.type(keywordInput, "1");
 
+  const skillInput = screen.getByLabelText("スキル");
+  await user.click(skillInput);
+  const skillOption = await screen.findByRole("option", { name: "フロントエンド" });
+  await user.click(skillOption);
+
+  const departmentSelect = screen.getByLabelText("部署");
+  await user.click(departmentSelect);
+  const departmentOption = await screen.findByRole("option", { name: "開発" });
+  await user.click(departmentOption);
+
+  const joinedAfterInput = screen.getByLabelText("入社日 (以降)");
+  fireEvent.change(joinedAfterInput, { target: { value: "2022-01-01" } });
+
+  await user.click(screen.getByLabelText("参加日が新しい順"));
+
+  await user.click(screen.getByLabelText("リモート勤務"));
+  await user.click(screen.getByLabelText("メンター経験"));
+
   await user.click(screen.getByRole("button", { name: "検索" }));
 
   await waitFor(() => {
@@ -107,7 +143,17 @@ it("allows searching users by identifier fragments", async () => {
 
   expect(lastRequest?.url.pathname).toBe("/api/users");
   expect(lastRequest?.url.searchParams.get("q")).toBe("1");
+  expect(lastRequest?.url.searchParams.getAll("skills")).toEqual(["frontend"]);
+  expect(lastRequest?.url.searchParams.get("department")).toBe("development");
+  expect(lastRequest?.url.searchParams.get("joinedAfter")).toBe("2022-01-01");
+  expect(lastRequest?.url.searchParams.get("sort")).toBe("joined-desc");
+  expect(lastRequest?.url.searchParams.getAll("features")).toEqual([
+    "remote",
+    "mentor",
+  ]);
 
   expect(await screen.findByRole("cell", { name: "山田太郎" })).toBeTruthy();
   expect(window.location.search).toContain("q=1");
+  expect(window.location.search).toContain("skills=frontend");
+  expect(window.location.search).toContain("department=development");
 });
