@@ -4,16 +4,13 @@ import userEvent from "@testing-library/user-event";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+const axiosRequestMock = vi.hoisted(() => vi.fn());
+
 vi.mock("@/api-client/axios-instance", () => ({
-  default: {
-    get: vi.fn(),
-  },
+  axiosInstance: axiosRequestMock,
 }));
 
-import axiosInstance from "@/api-client/axios-instance";
 import UsersSearchPageClient from "@/app/users/search/search-client";
-
-const axiosGetMock = axiosInstance.get as unknown as ReturnType<typeof vi.fn>;
 
 describe("UsersSearchPageClient", () => {
   const skillOptions = [
@@ -55,7 +52,7 @@ describe("UsersSearchPageClient", () => {
     renderComponent();
 
     expect(screen.getByText("条件を入力して検索してください。")).not.toBeNull();
-    expect(axiosGetMock).not.toHaveBeenCalled();
+    expect(axiosRequestMock).not.toHaveBeenCalled();
   });
 
   it("submits selected filters and requests users", async () => {
@@ -75,7 +72,7 @@ describe("UsersSearchPageClient", () => {
       },
     };
 
-    axiosGetMock.mockResolvedValueOnce(mockedResponse);
+    axiosRequestMock.mockResolvedValueOnce(mockedResponse);
 
     renderComponent();
 
@@ -102,10 +99,12 @@ describe("UsersSearchPageClient", () => {
     await user.click(screen.getByRole("button", { name: "検索" }));
 
     await waitFor(() => {
-      expect(axiosGetMock).toHaveBeenCalledTimes(1);
+      expect(axiosRequestMock).toHaveBeenCalledTimes(1);
     });
 
-    expect(axiosGetMock).toHaveBeenCalledWith("/api/users", {
+    expect(axiosRequestMock).toHaveBeenCalledWith({
+      url: "/api/users",
+      method: "GET",
       params: {
         q: "太郎",
         skills: ["frontend"],

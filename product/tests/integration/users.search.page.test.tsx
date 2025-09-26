@@ -1,6 +1,7 @@
 import React from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 
 import Providers, { createTestQueryClient } from "@/app/providers";
 import UsersSearchPageClient from "@/app/users/search/search-client";
@@ -30,29 +31,34 @@ type CapturedRequest = {
 const capturedRequests: CapturedRequest[] = [];
 let unsubscribeFromEvents: (() => void) | undefined;
 
-beforeAll(() => {
-  startMockServer();
-  const subscription = server.events.on("request:match", ({ request }) => {
-    capturedRequests.push({ url: new URL(request.url) });
+describe("Users search page", () => {
+  beforeAll(() => {
+    startMockServer();
+    const subscription = server.events.on("request:match", ({ request }) => {
+      capturedRequests.push({ url: new URL(request.url) });
+    });
+
+    if (typeof subscription === "function") {
+      unsubscribeFromEvents = subscription;
+      return;
+    }
+
+    if (isUnsubscribable(subscription)) {
+      unsubscribeFromEvents = () => subscription.unsubscribe();
+    }
   });
-  if (typeof subscription === "function") {
-    unsubscribeFromEvents = subscription;
-  } else if (subscription && typeof subscription === "object" && "unsubscribe" in subscription && typeof subscription.unsubscribe === "function") {
-    unsubscribeFromEvents = () => subscription.unsubscribe();
-  }
-});
 
-afterEach(() => {
-  capturedRequests.length = 0;
-  server.resetHandlers();
-});
+  afterEach(() => {
+    capturedRequests.length = 0;
+    server.resetHandlers();
+  });
 
-afterAll(() => {
-  unsubscribeFromEvents?.();
-  stopMockServer();
-});
+  afterAll(() => {
+    unsubscribeFromEvents?.();
+    stopMockServer();
+  });
 
-function renderPage() {
+  function renderPage() {
   const queryClient = createTestQueryClient();
 
   return render(
@@ -63,9 +69,9 @@ function renderPage() {
       />
     </Providers>,
   );
-}
+  }
 
-it("searches users and reflects query state", async () => {
+  it("searches users and reflects query state", async () => {
   process.env.APP_ENV = "local";
   process.env.NEXT_PUBLIC_API_BASE_URL = "https://example.com";
   process.env.NEXT_PUBLIC_API_MOCK = "true";
@@ -96,9 +102,9 @@ it("searches users and reflects query state", async () => {
 
   expect(await screen.findByRole("cell", { name: "山田太郎" })).toBeTruthy();
   expect(window.location.search).toContain("q=%E5%A4%AA%E9%83%8E");
-});
+  });
 
-it("allows searching users by identifier fragments", async () => {
+  it("allows searching users by identifier fragments", async () => {
   process.env.APP_ENV = "local";
   process.env.NEXT_PUBLIC_API_BASE_URL = "https://example.com";
   process.env.NEXT_PUBLIC_API_MOCK = "true";
@@ -159,4 +165,14 @@ it("allows searching users by identifier fragments", async () => {
   expect(window.location.search).toContain("skills=frontend");
   expect(window.location.search).toContain("departments=development");
   expect(window.location.search).toContain("departments=design");
+  });
 });
+
+function isUnsubscribable(value: unknown): value is { unsubscribe: () => void } {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "unsubscribe" in value &&
+    typeof (value as { unsubscribe: unknown }).unsubscribe === "function"
+  );
+}
