@@ -35,5 +35,9 @@ function shouldUseMockServer(): boolean {
     return false;
   }
 
+  if (ENV.appEnv !== "local") {
+    return false;
+  }
+
   return true;
 }

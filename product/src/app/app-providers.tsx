@@ -20,6 +20,10 @@ export default function AppProviders({ children }: AppProvidersProps) {
       return;
     }
 
+    if (ENV.appEnv !== "local") {
+      return;
+    }
+
     if (typeof window === "undefined") {
       return;
     }
