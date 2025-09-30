@@ -9,10 +9,10 @@ import {
 
 const usersEndpoint = new URL("/api/users", ENV.apiBaseUrl).toString();
 const departmentFiltersEndpoint = new URL(
-  "/api/users/filters/departments",
+  "/api/filters/departments",
   ENV.apiBaseUrl,
 ).toString();
-const skillFiltersEndpoint = new URL("/api/users/filters/skills", ENV.apiBaseUrl).toString();
+const skillFiltersEndpoint = new URL("/api/filters/skills", ENV.apiBaseUrl).toString();
 
 export const handlers = [
   http.get(usersEndpoint, ({ request }) => {

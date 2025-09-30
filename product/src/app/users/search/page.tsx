@@ -8,8 +8,8 @@ export const dynamic = "force-dynamic";
 export default async function UsersSearchPage() {
   const origin = await resolveApiOrigin();
   const [skillOptions, departmentOptions] = await Promise.all([
-    fetchFilterOptions(origin, "/api/users/filters/skills"),
-    fetchFilterOptions(origin, "/api/users/filters/departments"),
+    fetchFilterOptions(origin, "/api/filters/skills"),
+    fetchFilterOptions(origin, "/api/filters/departments"),
   ]);
 
   return (

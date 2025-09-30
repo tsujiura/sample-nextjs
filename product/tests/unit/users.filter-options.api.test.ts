@@ -1,13 +1,13 @@
 import { afterAll, describe, expect, it } from "vitest";
 import { NextRequest } from "next/server";
 
-import { GET as getDepartmentOptions } from "@/app/api/users/filters/departments/route";
-import { GET as getSkillOptions } from "@/app/api/users/filters/skills/route";
+import { GET as getDepartmentOptions } from "@/app/api/filters/departments/route";
+import { GET as getSkillOptions } from "@/app/api/filters/skills/route";
 import { stopMockServer } from "@/mocks/msw/node";
 
 describe("users filter option APIs", () => {
   it("returns skill options", async () => {
-    const request = new NextRequest("http://localhost/api/users/filters/skills");
+    const request = new NextRequest("http://localhost/api/filters/skills");
     const response = await getSkillOptions(request);
     const payload = await response.json();
 
@@ -23,7 +23,7 @@ describe("users filter option APIs", () => {
   });
 
   it("returns department options", async () => {
-    const request = new NextRequest("http://localhost/api/users/filters/departments");
+    const request = new NextRequest("http://localhost/api/filters/departments");
     const response = await getDepartmentOptions(request);
     const payload = await response.json();
 

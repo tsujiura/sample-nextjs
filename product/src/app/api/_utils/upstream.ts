@@ -4,10 +4,7 @@ import type { NextRequest } from "next/server";
 import { ENV } from "@/config/env";
 import { startMockServer } from "@/mocks/msw/node";
 
-export async function fetchFromUsersApi(
-  path: `/api/${string}`,
-  request: NextRequest,
-): Promise<Response> {
+export async function fetchFromApi(path: `/api/${string}`, request: NextRequest): Promise<Response> {
   startMockServer();
 
   const upstreamUrl = composeUpstreamUrl(path, request);

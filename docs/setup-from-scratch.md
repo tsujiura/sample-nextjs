@@ -146,7 +146,7 @@ export default defineConfig({
 
 ## 4. TypeSpec & Orval のセットアップ
 ### 4-1. TypeSpec プロジェクト
-`tsp/` ディレクトリを作成し、`main.tsp` と `tspconfig.yaml` を配置します。
+`tsp/` ディレクトリを作成し、`main.tsp`, `users.tsp`, `filters.tsp`, `tspconfig.yaml` を配置します。
 ```typescript
 // tsp/main.tsp
 import "@typespec/http";
@@ -156,7 +156,22 @@ import "@typespec/openapi3";
 using TypeSpec.Http;
 using TypeSpec.OpenAPI;
 
+@service({ title: "Sample User API" })
+@info({ version: "1.0.0" })
+@route("/api")
 namespace SampleApi;
+
+import "./users.tsp";
+import "./filters.tsp";
+```
+
+```typescript
+// tsp/users.tsp
+import "@typespec/http";
+
+using TypeSpec.Http;
+
+namespace SampleApi.Users;
 
 model User {
   id: string;
@@ -164,39 +179,40 @@ model User {
   email: string;
 }
 
+@route("/users")
+@get
+op listUsers(@query q?: string): {
+  @statusCode status: 200;
+  @body users: User[];
+};
+```
+
+```typescript
+// tsp/filters.tsp
+import "@typespec/http";
+
+using TypeSpec.Http;
+
+namespace SampleApi.Filters;
+
 model FilterOption {
   value: string;
   label: string;
 }
 
-@service({ title: "Sample User API" })
-@info({ version: "1.0.0" })
-@route("/api")
-namespace UsersService {
-  @route("/users")
-  @get
-  op listUsers(@query q?: string): {
-    @statusCode status: 200;
-    @body users: User[];
-  };
+@route("/filters/skills")
+@get
+op listSkillOptions(): {
+  @statusCode status: 200;
+  @body items: FilterOption[];
+};
 
-  @route("/users/filters")
-  namespace Filters {
-    @route("/skills")
-    @get
-    op listUserSkillOptions(): {
-      @statusCode status: 200;
-      @body items: FilterOption[];
-    };
-
-    @route("/departments")
-    @get
-    op listUserDepartmentOptions(): {
-      @statusCode status: 200;
-      @body items: FilterOption[];
-    };
-  }
-}
+@route("/filters/departments")
+@get
+op listDepartmentOptions(): {
+  @statusCode status: 200;
+  @body items: FilterOption[];
+};
 ```
 
 ```yaml

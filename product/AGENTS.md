@@ -15,7 +15,7 @@ Next.js（App Router）と MUI を用いた「検索→一覧」体験を反復�
 - `src/mocks/msw` : 開発・テストで利用するハンドラ（`browser.ts` / `node.ts`）とモックデータ
 - `src/api-client` : Orval が生成する API クライアントと `axios-instance.ts`
 - `src/services` : ビジネスロジック層（React Query のカスタムフックなど）
-- `tsp/` : TypeSpec 定義（`main.tsp`）と `tspconfig.yaml`
+- `tsp/` : TypeSpec 定義（`main.tsp` + `users.tsp` + `filters.tsp`）と `tspconfig.yaml`
 - `openapi/` : TypeSpec から生成される `openapi.json`
 - `tests/` : Vitest によるユニット・統合テスト (`tests/integration` は RTL+MSW)
 - `.env.example` : 各環境ファイルの雛形

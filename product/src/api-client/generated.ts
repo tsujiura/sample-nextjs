@@ -5,51 +5,51 @@
  * OpenAPI spec version: 1.0.0
  */
 import { axiosInstance } from './axios-instance';
-export interface SampleApiFilterOption {
+export interface FiltersFilterOption {
   value: string;
   label: string;
 }
 
-export interface SampleApiUser {
+export interface UsersUser {
   id: string;
   name: string;
   email: string;
 }
 
-export type ListUsersParams = {
+export type UsersListUsersParams = {
 q?: string;
 };
 
 export const getSampleUserAPI = () => {
-const listUsers = (
-    params?: ListUsersParams,
+const filtersListDepartmentOptions = (
+    
  ) => {
-      return axiosInstance<SampleApiUser[]>(
+      return axiosInstance<FiltersFilterOption[]>(
+      {url: `/api/filters/departments`, method: 'GET'
+    },
+      );
+    }
+  
+const filtersListSkillOptions = (
+    
+ ) => {
+      return axiosInstance<FiltersFilterOption[]>(
+      {url: `/api/filters/skills`, method: 'GET'
+    },
+      );
+    }
+  
+const usersListUsers = (
+    params?: UsersListUsersParams,
+ ) => {
+      return axiosInstance<UsersUser[]>(
       {url: `/api/users`, method: 'GET',
         params
     },
       );
     }
   
-const filtersListUserDepartmentOptions = (
-    
- ) => {
-      return axiosInstance<SampleApiFilterOption[]>(
-      {url: `/api/users/filters/departments`, method: 'GET'
-    },
-      );
-    }
-  
-const filtersListUserSkillOptions = (
-    
- ) => {
-      return axiosInstance<SampleApiFilterOption[]>(
-      {url: `/api/users/filters/skills`, method: 'GET'
-    },
-      );
-    }
-  
-return {listUsers,filtersListUserDepartmentOptions,filtersListUserSkillOptions}};
-export type ListUsersResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSampleUserAPI>['listUsers']>>>
-export type FiltersListUserDepartmentOptionsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSampleUserAPI>['filtersListUserDepartmentOptions']>>>
-export type FiltersListUserSkillOptionsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSampleUserAPI>['filtersListUserSkillOptions']>>>
+return {filtersListDepartmentOptions,filtersListSkillOptions,usersListUsers}};
+export type FiltersListDepartmentOptionsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSampleUserAPI>['filtersListDepartmentOptions']>>>
+export type FiltersListSkillOptionsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSampleUserAPI>['filtersListSkillOptions']>>>
+export type UsersListUsersResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSampleUserAPI>['usersListUsers']>>>

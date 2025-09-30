@@ -1,8 +1,8 @@
 import type { NextRequest } from "next/server";
 
-import { fetchFromApi, toNextResponse } from "../_utils/upstream";
+import { fetchFromApi, toNextResponse } from "../../_utils/upstream";
 
 export async function GET(request: NextRequest) {
-  const upstreamResponse = await fetchFromApi("/api/users", request);
+  const upstreamResponse = await fetchFromApi("/api/filters/skills", request);
   return await toNextResponse(upstreamResponse);
 }

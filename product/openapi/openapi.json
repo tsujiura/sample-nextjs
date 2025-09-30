@@ -6,9 +6,51 @@
   },
   "tags": [],
   "paths": {
+    "/api/filters/departments": {
+      "get": {
+        "operationId": "Filters_listDepartmentOptions",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Filters.FilterOption"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/filters/skills": {
+      "get": {
+        "operationId": "Filters_listSkillOptions",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Filters.FilterOption"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/users": {
       "get": {
-        "operationId": "listUsers",
+        "operationId": "Users_listUsers",
         "parameters": [
           {
             "name": "q",
@@ -28,49 +70,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/SampleApi.User"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/users/filters/departments": {
-      "get": {
-        "operationId": "Filters_listUserDepartmentOptions",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "The request has succeeded.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/SampleApi.FilterOption"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/users/filters/skills": {
-      "get": {
-        "operationId": "Filters_listUserSkillOptions",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "The request has succeeded.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/SampleApi.FilterOption"
+                    "$ref": "#/components/schemas/Users.User"
                   }
                 }
               }
@@ -82,7 +82,7 @@
   },
   "components": {
     "schemas": {
-      "SampleApi.FilterOption": {
+      "Filters.FilterOption": {
         "type": "object",
         "required": [
           "value",
@@ -97,7 +97,7 @@
           }
         }
       },
-      "SampleApi.User": {
+      "Users.User": {
         "type": "object",
         "required": [
           "id",
