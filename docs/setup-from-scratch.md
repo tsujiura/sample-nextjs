@@ -64,6 +64,7 @@ npm install -D \
 APP_ENV=local
 NEXT_PUBLIC_API_BASE_URL=https://example.com
 NEXT_PUBLIC_API_MOCK=true
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 SERVER_CACHE_TTL_MS=60000
 ```
 
@@ -295,7 +296,7 @@ export default function AppProviders({ children }: AppProvidersProps) {
 - `package.json` の `test:unit` / `test:integration` スクリプトで実行
 
 ## 7. 環境ファイルの準備
-各環境向けに `.env.local`, `.env.development`, `.env.staging`, `.env.production` を `.env.example` からコピーし、`NEXT_PUBLIC_API_BASE_URL` や `SERVER_CACHE_TTL_MS` を実際の値に置き換えます。
+各環境向けに `.env.local`, `.env.development`, `.env.staging`, `.env.production` を `.env.example` からコピーし、`NEXT_PUBLIC_API_BASE_URL` や `NEXT_PUBLIC_SITE_URL`, `SERVER_CACHE_TTL_MS` などを実際の値に置き換えます。
 
 ## 8. 生成と検証
 ```bash

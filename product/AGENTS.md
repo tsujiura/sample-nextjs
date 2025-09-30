@@ -22,7 +22,7 @@ Next.js（App Router）と MUI を用いた「検索→一覧」体験を反復�
 
 ## 初期セットアップ
 1. 依存関係をインストール: `npm install`
-2. 環境変数ファイルを作成: `.env.example` を各環境にコピー（例: `cp .env.example .env.local`）し、 `NEXT_PUBLIC_API_BASE_URL` などを実際の値に更新
+2. 環境変数ファイルを作成: `.env.example` を各環境にコピー（例: `cp .env.example .env.local`）し、 `NEXT_PUBLIC_API_BASE_URL` や `NEXT_PUBLIC_SITE_URL` などを実際の値に更新
 3. API クライアントを生成: `npm run gen` （TypeSpec → OpenAPI → Orval）
 4. 開発サーバーを起動: `npm run dev`（`APP_ENV=local` かつ `NEXT_PUBLIC_API_MOCK=true` で MSW が自動起動）
 
