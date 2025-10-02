@@ -17,12 +17,15 @@ export type DepartmentMultiSelectFieldProps = {
 
 function DepartmentMultiSelectFieldComponent({ options, value, onChange }: DepartmentMultiSelectFieldProps) {
   return (
-    <FormControl fullWidth>
-      <InputLabel id="department-select-label">部署</InputLabel>
+    <FormControl fullWidth margin="none" sx={{ mt: 0 }}>
+      <InputLabel id="department-select-label" shrink sx={{ backgroundColor: "background.paper", px: 0.5 }}>
+        部署
+      </InputLabel>
       <MultiSelectInput
         labelId="department-select-label"
         value={value}
         label="部署"
+        sx={{ mt: 0 }}
         renderValue={(selected) =>
           (selected as string[])
             .map((selectedValue) => options.find((option) => option.value === selectedValue)?.label ?? selectedValue)

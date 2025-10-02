@@ -17,7 +17,7 @@ export type FeatureCheckboxGroupProps = {
 
 function FeatureCheckboxGroupComponent({ options, value, onToggle }: FeatureCheckboxGroupProps) {
   return (
-    <FormControl component="fieldset">
+    <FormControl component="fieldset" margin="none" sx={{ mt: 0 }}>
       <FormLabel component="legend">特性</FormLabel>
       <FormGroup row>
         {options.map((option) => (

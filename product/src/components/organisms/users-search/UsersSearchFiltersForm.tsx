@@ -16,6 +16,15 @@ import {
   type SortOption,
 } from "@/components/molecules/users-search";
 
+const fieldContainerSx = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 1,
+  "& > *": {
+    width: "100%",
+  },
+} as const;
+
 export type UsersSearchFiltersFormProps = {
   keyword: string;
   skillOptions: SkillOption[];
@@ -64,35 +73,36 @@ function UsersSearchFiltersFormComponent({
       onSubmit={onSubmit}
       display="grid"
       gap={3}
-      gridTemplateColumns={{ xs: "repeat(1, minmax(0, 1fr))", md: "repeat(2, minmax(0, 1fr))", xl: "repeat(3, minmax(0, 1fr))" }}
+      gridTemplateColumns={{
+        xs: "repeat(1, minmax(0, 1fr))",
+        md: "repeat(3, minmax(0, 1fr))",
+      }}
+      sx={{ alignItems: "start" }}
       {...boxProps}
     >
-      <Box gridColumn={{ xs: "span 1", md: "span 2", xl: "span 1" }}>
+      <Box gridColumn={{ xs: "span 1", md: "span 1" }} sx={fieldContainerSx}>
         <KeywordField value={keyword} onChange={onKeywordChange} />
       </Box>
 
-      <Box gridColumn={{ xs: "span 1", md: "span 2", xl: "span 1" }}>
+      <Box gridColumn={{ xs: "span 1", md: "span 1" }} sx={fieldContainerSx}>
         <SkillAutocompleteField options={skillOptions} value={selectedSkills} onChange={onSkillsChange} />
       </Box>
 
-      <Box gridColumn={{ xs: "span 1", md: "span 1" }}>
+      <Box gridColumn={{ xs: "span 1", md: "span 1" }} sx={fieldContainerSx}>
         <DepartmentMultiSelectField options={departmentOptions} value={selectedDepartments} onChange={onDepartmentsChange} />
       </Box>
 
-      <Box gridColumn={{ xs: "span 1", md: "span 1" }}>
+      <Box gridColumn={{ xs: "span 1", md: "span 1" }} sx={fieldContainerSx}>
         <JoinedAfterField value={joinedAfter} onChange={onJoinedAfterChange} />
       </Box>
 
-      <Box gridColumn={{ xs: "span 1", md: "span 1" }}>
+      <Box gridColumn={{ xs: "span 1", md: "span 1" }} sx={fieldContainerSx}>
         <SortOrderField options={sortOptions} value={sortOrder} onChange={onSortOrderChange} />
       </Box>
 
-      <Box gridColumn={{ xs: "span 1", md: "span 2", xl: "span 3" }}>
+      <Stack gridColumn={{ xs: "span 1", md: "span 1" }} spacing={1.5} sx={{ ...fieldContainerSx, height: "100%", flexGrow: 1 }}>
         <FeatureCheckboxGroup options={featureOptions} value={selectedFeatures} onToggle={onFeatureToggle} />
-      </Box>
-
-      <Stack gridColumn={{ xs: "span 1", md: "span 2", xl: "span 3" }}>
-        <SearchActionRow isSubmitting={isSubmitting} />
+        <SearchActionRow isSubmitting={isSubmitting} sx={{ mt: { md: "auto" } }} />
       </Stack>
     </Box>
   );

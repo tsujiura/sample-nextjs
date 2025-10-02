@@ -9,16 +9,14 @@ model FilterOption {
   label: string;
 }
 
+model FilterOptionsResponse {
+  items: FilterOption[];
+}
+
 @route("/filters/skills")
 @get
-op listSkillOptions(): {
-  @statusCode status: 200;
-  @body items: FilterOption[];
-};
+op listSkillOptions(): FilterOptionsResponse;
 
 @route("/filters/departments")
 @get
-op listDepartmentOptions(): {
-  @statusCode status: 200;
-  @body items: FilterOption[];
-};
+op listDepartmentOptions(): FilterOptionsResponse;

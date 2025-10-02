@@ -20,6 +20,8 @@ function SkillAutocompleteFieldComponent({ options, value, onChange }: SkillAuto
     <AutocompleteInput<SkillOption, true, false, false>
       multiple
       disableCloseOnSelect
+      fullWidth
+      fullWidth
       value={options.filter((option) => value.includes(option.value))}
       options={options}
       getOptionLabel={(option) => option.label}
@@ -29,7 +31,15 @@ function SkillAutocompleteFieldComponent({ options, value, onChange }: SkillAuto
           <Chip label={option.label} {...getTagProps({ index })} key={option.value} />
         ))
       }
-      renderInput={(params) => <TextField {...params} label="スキル" placeholder="スキルを選択" />}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label="スキル"
+          placeholder="スキルを選択"
+          margin="none"
+          InputLabelProps={{ ...params.InputLabelProps, shrink: true }}
+        />
+      )}
       onChange={(_, selected) => {
         onChange(selected.map((option) => option.value));
       }}

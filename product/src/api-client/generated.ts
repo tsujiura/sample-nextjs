@@ -10,21 +10,48 @@ export interface FiltersFilterOption {
   label: string;
 }
 
+export interface FiltersFilterOptionsResponse {
+  items: FiltersFilterOption[];
+}
+
 export interface UsersUser {
   id: string;
   name: string;
   email: string;
+  department: string;
+  employment: string;
+  joinedAt: string;
+  skills: string[];
+  features: string[];
+}
+
+export interface UsersUsersResponse {
+  users: UsersUser[];
 }
 
 export type UsersListUsersParams = {
 q?: string;
+skills?: string[];
+departments?: string[];
+joinedAfter?: string;
+sort?: UsersListUsersSort;
+features?: string[];
 };
+
+export type UsersListUsersSort = typeof UsersListUsersSort[keyof typeof UsersListUsersSort];
+
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const UsersListUsersSort = {
+  'joined-asc': 'joined-asc',
+  'joined-desc': 'joined-desc',
+} as const;
 
 export const getSampleUserAPI = () => {
 const filtersListDepartmentOptions = (
     
  ) => {
-      return axiosInstance<FiltersFilterOption[]>(
+      return axiosInstance<FiltersFilterOptionsResponse>(
       {url: `/api/filters/departments`, method: 'GET'
     },
       );
@@ -33,7 +60,7 @@ const filtersListDepartmentOptions = (
 const filtersListSkillOptions = (
     
  ) => {
-      return axiosInstance<FiltersFilterOption[]>(
+      return axiosInstance<FiltersFilterOptionsResponse>(
       {url: `/api/filters/skills`, method: 'GET'
     },
       );
@@ -42,7 +69,7 @@ const filtersListSkillOptions = (
 const usersListUsers = (
     params?: UsersListUsersParams,
  ) => {
-      return axiosInstance<UsersUser[]>(
+      return axiosInstance<UsersUsersResponse>(
       {url: `/api/users`, method: 'GET',
         params
     },

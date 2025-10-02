@@ -16,10 +16,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Filters.FilterOption"
-                  }
+                  "$ref": "#/components/schemas/Filters.FilterOptionsResponse"
                 }
               }
             }
@@ -37,10 +34,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Filters.FilterOption"
-                  }
+                  "$ref": "#/components/schemas/Filters.FilterOptionsResponse"
                 }
               }
             }
@@ -60,6 +54,64 @@
               "type": "string"
             },
             "explode": false
+          },
+          {
+            "name": "skills",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "explode": false
+          },
+          {
+            "name": "departments",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "explode": false
+          },
+          {
+            "name": "joinedAfter",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "joined-asc",
+                "joined-desc"
+              ]
+            },
+            "explode": false
+          },
+          {
+            "name": "features",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "explode": false
           }
         ],
         "responses": {
@@ -68,10 +120,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Users.User"
-                  }
+                  "$ref": "#/components/schemas/Users.UsersResponse"
                 }
               }
             }
@@ -97,12 +146,31 @@
           }
         }
       },
+      "Filters.FilterOptionsResponse": {
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Filters.FilterOption"
+            }
+          }
+        }
+      },
       "Users.User": {
         "type": "object",
         "required": [
           "id",
           "name",
-          "email"
+          "email",
+          "department",
+          "employment",
+          "joinedAt",
+          "skills",
+          "features"
         ],
         "properties": {
           "id": {
@@ -113,6 +181,41 @@
           },
           "email": {
             "type": "string"
+          },
+          "department": {
+            "type": "string"
+          },
+          "employment": {
+            "type": "string"
+          },
+          "joinedAt": {
+            "type": "string"
+          },
+          "skills": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "features": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "Users.UsersResponse": {
+        "type": "object",
+        "required": [
+          "users"
+        ],
+        "properties": {
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Users.User"
+            }
           }
         }
       }

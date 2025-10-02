@@ -17,7 +17,7 @@ export type SortOrderFieldProps = {
 
 function SortOrderFieldComponent({ options, value, onChange }: SortOrderFieldProps) {
   return (
-    <FormControl component="fieldset">
+    <FormControl component="fieldset" margin="none" sx={{ mt: 0 }}>
       <FormLabel id="sort-order-label">並び順</FormLabel>
       <RadioGroupInput
         aria-labelledby="sort-order-label"

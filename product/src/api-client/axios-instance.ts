@@ -7,6 +7,9 @@ const instance = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  paramsSerializer: {
+    indexes: null,
+  },
 });
 
 export const axiosInstance = <T = unknown, R = AxiosResponse<T>>(config: AxiosRequestConfig<T>) => {

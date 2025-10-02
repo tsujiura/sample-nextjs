@@ -16,7 +16,12 @@
       ]
     }
   },
-  "forwardPorts": [
-    3000
-  ]
+  "runArgs": [
+    "--shm-size=1g"
+  ],
+  "forwardPorts": [3000, 9222],
+  "portsAttributes": {
+    "9222": { "label": "Chrome DevTools (container)", "onAutoForward": "openBrowser" }
+  },
+  "postAttachCommand": "bash -lc 'setsid nohup ${containerWorkspaceFolder}/.devcontainer/start-chromium.sh >/tmp/chromium-devtools.log 2>&1 < /dev/null & disown; true'"
 }

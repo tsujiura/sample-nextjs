@@ -113,7 +113,6 @@ describe("UsersSearchPageClient", () => {
         sort: "joined-desc",
         features: ["remote", "mentor"],
       },
-      paramsSerializer: { indexes: null },
     });
 
     await screen.findByRole("cell", { name: "山田太郎" });

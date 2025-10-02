@@ -15,6 +15,8 @@ function KeywordFieldComponent({ value, onChange, placeholder }: KeywordFieldPro
       label="検索キーワード"
       value={value}
       placeholder={placeholder}
+      margin="none"
+      InputLabelProps={{ shrink: true }}
       onChange={(event) => onChange(event.target.value)}
     />
   );

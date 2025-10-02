@@ -6,7 +6,7 @@ import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { axiosInstance } from "@/api-client/axios-instance";
+import { UsersListUsersSort, getSampleUserAPI } from "@/api-client/generated";
 import type {
   DepartmentOption,
   FeatureOption,
@@ -22,14 +22,12 @@ import {
   type SearchFilters,
 } from "@/app/users/search/filter-utils";
 
-type UsersResponse = {
-  users: UserRow[];
-};
-
 type UsersSearchPageClientProps = {
   skillOptions: SkillOption[];
   departmentOptions: DepartmentOption[];
 };
+
+const sampleUserApi = getSampleUserAPI();
 
 const sortOptions: SortOption[] = [
   { value: "joined-desc", label: "参加日が新しい順" },
@@ -50,23 +48,33 @@ const employmentLabels: Record<string, string> = {
 };
 
 async function fetchUsers(filters: SearchFilters): Promise<UserRow[]> {
-  const response = await axiosInstance<UsersResponse>({
-    url: "/api/users",
-    method: "GET",
-    params: {
-      q: filters.keyword,
-      skills: filters.skills,
-      departments: filters.departments,
-      joinedAfter: filters.joinedAfter ?? undefined,
-      sort: filters.sortOrder ?? undefined,
-      features: filters.features,
-    },
-    paramsSerializer: {
-      indexes: null,
-    },
+  const sortParam = toUsersListUsersSort(filters.sortOrder);
+
+  const response = await sampleUserApi.usersListUsers({
+    q: filters.keyword,
+    skills: filters.skills,
+    departments: filters.departments,
+    joinedAfter: filters.joinedAfter ?? undefined,
+    sort: sortParam,
+    features: filters.features,
   });
 
-  return response.data.users;
+  return response.data.users.map((user) => ({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    department: user.department,
+    employment: user.employment,
+    joinedAt: user.joinedAt,
+  }));
+}
+
+function toUsersListUsersSort(value: string | null): UsersListUsersSort | undefined {
+  if (value === UsersListUsersSort["joined-asc"] || value === UsersListUsersSort["joined-desc"]) {
+    return value;
+  }
+
+  return undefined;
 }
 
 function UsersSearchPageContent({ skillOptions, departmentOptions }: UsersSearchPageClientProps) {

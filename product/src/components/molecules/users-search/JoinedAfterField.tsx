@@ -13,6 +13,8 @@ function JoinedAfterFieldComponent({ value, onChange }: JoinedAfterFieldProps) {
     <DateInput
       label="入社日 (以降)"
       value={value ?? ""}
+      margin="none"
+      InputLabelProps={{ shrink: true }}
       onChange={(event) => {
         const nextValue = event.target.value;
         onChange(nextValue.length > 0 ? nextValue : null);
