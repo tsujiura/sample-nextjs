@@ -1,7 +1,7 @@
 import { defineConfig } from "orval";
 
 export default defineConfig({
-  users: {
+  samples: {
     input: {
       target: "./openapi/openapi.json",
     },

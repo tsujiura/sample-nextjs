@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import {
   hasMeaningfulFilters,
-  mapSkillsToOptions,
+  mapTokensToOptions,
   parseFilters,
   type SearchFilters,
-} from "@/app/users/search/filter-utils";
+} from "@/app/sample/search/filter-utils";
 
 describe("parseFilters", () => {
   it("returns defaults when no parameters are provided", () => {
@@ -15,8 +15,8 @@ describe("parseFilters", () => {
 
     expect(result).toEqual<SearchFilters>({
       keyword: "",
-      skills: [],
-      departments: [],
+      tokens: [],
+      sections: [],
       joinedAfter: null,
       sortOrder: null,
       features: [],
@@ -25,56 +25,56 @@ describe("parseFilters", () => {
 
   it("parses provided search parameters", () => {
     const params = new URLSearchParams();
-    params.set("q", "frontend");
-    params.append("skills", "frontend");
-    params.append("skills", "qa");
-    params.set("department", "development");
-    params.append("departments", "design");
+    params.set("q", "token-1");
+    params.append("tokens", "token-1");
+    params.append("tokens", "token-3");
+    params.set("section", "unit-1");
+    params.append("sections", "unit-2");
     params.set("joinedAfter", "2022-01-01");
     params.set("sort", "joined-asc");
-    params.append("features", "remote");
-    params.append("features", "mentor");
+    params.append("features", "flag-1");
+    params.append("features", "flag-2");
 
     const result = parseFilters(params);
 
-    expect(result.keyword).toBe("frontend");
-    expect(result.skills).toEqual(["frontend", "qa"]);
-    expect(result.departments).toEqual(expect.arrayContaining(["development", "design"]));
-    expect(result.departments).toHaveLength(2);
+    expect(result.keyword).toBe("token-1");
+    expect(result.tokens).toEqual(["token-1", "token-3"]);
+    expect(result.sections).toEqual(expect.arrayContaining(["unit-1", "unit-2"]));
+    expect(result.sections).toHaveLength(2);
     expect(result.joinedAfter).toBe("2022-01-01");
     expect(result.sortOrder).toBe("joined-asc");
-    expect(result.features).toEqual(["remote", "mentor"]);
+    expect(result.features).toEqual(["flag-1", "flag-2"]);
   });
 });
 
-describe("mapSkillsToOptions", () => {
+describe("mapTokensToOptions", () => {
   const options = [
-    { value: "frontend", label: "フロントエンド" },
-    { value: "backend", label: "バックエンド" },
-    { value: "qa", label: "QA" },
+    { value: "token-1", label: "コードＡ" },
+    { value: "token-2", label: "コードＢ" },
+    { value: "token-3", label: "コードＣ" },
   ];
 
   it("maps selected skill ids to option objects", () => {
-    const result = mapSkillsToOptions(["frontend", "qa"], options);
+    const result = mapTokensToOptions(["token-1", "token-3"], options);
 
     expect(result).toEqual([
-      { value: "frontend", label: "フロントエンド" },
-      { value: "qa", label: "QA" },
+      { value: "token-1", label: "コードＡ" },
+      { value: "token-3", label: "コードＣ" },
     ]);
   });
 
   it("ignores unknown skill ids", () => {
-    const result = mapSkillsToOptions(["frontend", "unknown"], options);
+    const result = mapTokensToOptions(["token-1", "unknown"], options);
 
-    expect(result).toEqual([{ value: "frontend", label: "フロントエンド" }]);
+    expect(result).toEqual([{ value: "token-1", label: "コードＡ" }]);
   });
 });
 
 describe("hasMeaningfulFilters", () => {
   const baseFilters: SearchFilters = {
     keyword: "",
-    skills: [],
-    departments: [],
+    tokens: [],
+    sections: [],
     joinedAfter: null,
     sortOrder: null,
     features: [],
@@ -88,12 +88,12 @@ describe("hasMeaningfulFilters", () => {
     expect(hasMeaningfulFilters({ ...baseFilters, keyword: "foo" })).toBe(true);
   });
 
-  it("returns true when skills are provided", () => {
-    expect(hasMeaningfulFilters({ ...baseFilters, skills: ["frontend"] })).toBe(true);
+  it("returns true when tokens are provided", () => {
+    expect(hasMeaningfulFilters({ ...baseFilters, tokens: ["token-1"] })).toBe(true);
   });
 
-  it("returns true when departments are provided", () => {
-    expect(hasMeaningfulFilters({ ...baseFilters, departments: ["development"] })).toBe(true);
+  it("returns true when sections are provided", () => {
+    expect(hasMeaningfulFilters({ ...baseFilters, sections: ["unit-1"] })).toBe(true);
   });
 
   it("returns true when joinedAfter is provided", () => {
@@ -101,6 +101,6 @@ describe("hasMeaningfulFilters", () => {
   });
 
   it("returns true when features are provided", () => {
-    expect(hasMeaningfulFilters({ ...baseFilters, features: ["remote"] })).toBe(true);
+    expect(hasMeaningfulFilters({ ...baseFilters, features: ["flag-1"] })).toBe(true);
   });
 });

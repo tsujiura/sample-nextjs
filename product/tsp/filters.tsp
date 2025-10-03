@@ -13,10 +13,10 @@ model FilterOptionsResponse {
   items: FilterOption[];
 }
 
-@route("/filters/skills")
+@route("/filters/tokens")
 @get
-op listSkillOptions(): FilterOptionsResponse;
+op listTokenOptions(): FilterOptionsResponse;
 
-@route("/filters/departments")
+@route("/filters/sections")
 @get
-op listDepartmentOptions(): FilterOptionsResponse;
+op listSectionOptions(): FilterOptionsResponse;

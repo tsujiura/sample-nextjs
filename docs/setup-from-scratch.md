@@ -146,7 +146,7 @@ export default defineConfig({
 
 ## 4. TypeSpec & Orval のセットアップ
 ### 4-1. TypeSpec プロジェクト
-`tsp/` ディレクトリを作成し、`main.tsp`, `users.tsp`, `filters.tsp`, `tspconfig.yaml` を配置します。
+`tsp/` ディレクトリを作成し、`main.tsp`, `sample.tsp`, `filters.tsp`, `tspconfig.yaml` を配置します。
 ```typescript
 // tsp/main.tsp
 import "@typespec/http";
@@ -156,50 +156,50 @@ import "@typespec/openapi3";
 using TypeSpec.Http;
 using TypeSpec.OpenAPI;
 
-@service({ title: "Sample User API" })
+@service({ title: "Sample Item API" })
 @info({ version: "1.0.0" })
 @route("/api")
 namespace SampleApi;
 
-import "./users.tsp";
+import "./sample.tsp";
 import "./filters.tsp";
 ```
 
 ```typescript
-// tsp/users.tsp
+// tsp/sample.tsp
 import "@typespec/http";
 
 using TypeSpec.Http;
 
-namespace SampleApi.Users;
+namespace SampleApi.Items;
 
-alias SortOrder = "joined-asc" | "joined-desc";
+alias ItemSort = "joined-asc" | "joined-desc";
 
-model User {
+model SampleItem {
   id: string;
   name: string;
   email: string;
-  department: string;
+  segment: string;
   employment: string;
   joinedAt: string;
-  skills: string[];
+  tokens: string[];
   features: string[];
 }
 
-model UsersResponse {
-  users: User[];
+model SampleItemsResponse {
+  items: SampleItem[];
 }
 
-@route("/users")
+@route("/fizz")
 @get
-op listUsers(
+op listSampleItems(
   @query q?: string,
-  @query skills?: string[],
-  @query departments?: string[],
+  @query tokens?: string[],
+  @query sections?: string[],
   @query joinedAfter?: string,
-  @query sort?: SortOrder,
+  @query sort?: ItemSort,
   @query features?: string[],
-): UsersResponse;
+): SampleItemsResponse;
 ```
 
 ```typescript
@@ -219,13 +219,13 @@ model FilterOptionsResponse {
   items: FilterOption[];
 }
 
-@route("/filters/skills")
+@route("/filters/tokens")
 @get
-op listSkillOptions(): FilterOptionsResponse;
+op listTokenOptions(): FilterOptionsResponse;
 
-@route("/filters/departments")
+@route("/filters/sections")
 @get
-op listDepartmentOptions(): FilterOptionsResponse;
+op listSectionOptions(): FilterOptionsResponse;
 ```
 
 ```yaml
@@ -240,7 +240,7 @@ emitters:
 import { defineConfig } from "orval";
 
 export default defineConfig({
-  users: {
+  samples: {
     input: { target: "./openapi/openapi.json" },
     output: {
       target: "./src/api-client/generated.ts",

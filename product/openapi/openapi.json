@@ -1,14 +1,14 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "Sample User API",
+    "title": "Sample Item API",
     "version": "1.0.0"
   },
   "tags": [],
   "paths": {
-    "/api/filters/departments": {
+    "/api/filters/sections": {
       "get": {
-        "operationId": "Filters_listDepartmentOptions",
+        "operationId": "Filters_listSectionOptions",
         "parameters": [],
         "responses": {
           "200": {
@@ -24,9 +24,9 @@
         }
       }
     },
-    "/api/filters/skills": {
+    "/api/filters/tokens": {
       "get": {
-        "operationId": "Filters_listSkillOptions",
+        "operationId": "Filters_listTokenOptions",
         "parameters": [],
         "responses": {
           "200": {
@@ -42,9 +42,9 @@
         }
       }
     },
-    "/api/users": {
+    "/api/fizz": {
       "get": {
-        "operationId": "Users_listUsers",
+        "operationId": "Items_listSampleItems",
         "parameters": [
           {
             "name": "q",
@@ -56,7 +56,7 @@
             "explode": false
           },
           {
-            "name": "skills",
+            "name": "tokens",
             "in": "query",
             "required": false,
             "schema": {
@@ -68,7 +68,7 @@
             "explode": false
           },
           {
-            "name": "departments",
+            "name": "sections",
             "in": "query",
             "required": false,
             "schema": {
@@ -120,7 +120,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Users.UsersResponse"
+                  "$ref": "#/components/schemas/Items.SampleItemsResponse"
                 }
               }
             }
@@ -160,16 +160,16 @@
           }
         }
       },
-      "Users.User": {
+      "Items.SampleItem": {
         "type": "object",
         "required": [
           "id",
           "name",
           "email",
-          "department",
+          "segment",
           "employment",
           "joinedAt",
-          "skills",
+          "tokens",
           "features"
         ],
         "properties": {
@@ -182,7 +182,7 @@
           "email": {
             "type": "string"
           },
-          "department": {
+          "segment": {
             "type": "string"
           },
           "employment": {
@@ -191,7 +191,7 @@
           "joinedAt": {
             "type": "string"
           },
-          "skills": {
+          "tokens": {
             "type": "array",
             "items": {
               "type": "string"
@@ -205,16 +205,16 @@
           }
         }
       },
-      "Users.UsersResponse": {
+      "Items.SampleItemsResponse": {
         "type": "object",
         "required": [
-          "users"
+          "items"
         ],
         "properties": {
-          "users": {
+          "items": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Users.User"
+              "$ref": "#/components/schemas/Items.SampleItem"
             }
           }
         }

@@ -1,51 +1,47 @@
 import { http, HttpResponse } from "msw";
 
 import { ENV } from "@/config/env";
-import {
-  DEPARTMENT_OPTIONS,
-  SKILL_OPTIONS,
-  USERS_FIXTURE,
-} from "./data/users";
+import { SECTION_OPTIONS, TOKEN_OPTIONS, SAMPLE_FIXTURE } from "./data/sample";
 
-const usersEndpoint = new URL("/api/users", ENV.apiBaseUrl).toString();
+const sampleEndpoint = new URL("/api/fizz", ENV.apiBaseUrl).toString();
 const departmentFiltersEndpoint = new URL(
-  "/api/filters/departments",
+  "/api/filters/sections",
   ENV.apiBaseUrl,
 ).toString();
-const skillFiltersEndpoint = new URL("/api/filters/skills", ENV.apiBaseUrl).toString();
+const skillFiltersEndpoint = new URL("/api/filters/tokens", ENV.apiBaseUrl).toString();
 
 export const handlers = [
-  http.get(usersEndpoint, ({ request }) => {
+  http.get(sampleEndpoint, ({ request }) => {
     const url = new URL(request.url);
     const keyword = url.searchParams.get("q") ?? "";
     const normalizedKeyword = keyword.trim();
     const normalizedKeywordLower = normalizedKeyword.toLowerCase();
 
-    const skills = url.searchParams.getAll("skills");
-    const departments = url.searchParams.getAll("departments");
+    const tokens = url.searchParams.getAll("tokens");
+    const sections = url.searchParams.getAll("sections");
     const joinedAfter = url.searchParams.get("joinedAfter") ?? "";
     const sortOrder = url.searchParams.get("sort") ?? "joined-desc";
     const features = url.searchParams.getAll("features");
 
-    let users = USERS_FIXTURE.filter((user) => {
-      const emailLower = user.email.toLowerCase();
+    let records = SAMPLE_FIXTURE.filter((entry) => {
+      const emailLower = entry.email.toLowerCase();
       const matchesKeyword = normalizedKeyword.length === 0
         ? true
-        : user.name.includes(normalizedKeyword) ||
-          user.id.includes(normalizedKeyword) ||
+        : entry.name.includes(normalizedKeyword) ||
+          entry.id.includes(normalizedKeyword) ||
           emailLower.includes(normalizedKeywordLower);
 
       const matchesSkills =
-        skills.length === 0 || skills.every((skill) => user.skills.includes(skill));
+        tokens.length === 0 || tokens.every((token) => entry.tokens.includes(token));
 
       const matchesDepartment =
-        departments.length === 0 || departments.includes(user.department);
+        sections.length === 0 || sections.includes(entry.segment);
 
       const matchesJoinedAfter =
-        joinedAfter.length === 0 || user.joinedAt >= joinedAfter;
+        joinedAfter.length === 0 || entry.joinedAt >= joinedAfter;
 
       const matchesFeatures =
-        features.length === 0 || features.every((feature) => user.features.includes(feature));
+        features.length === 0 || features.every((feature) => entry.features.includes(feature));
 
       return (
         matchesKeyword &&
@@ -56,7 +52,7 @@ export const handlers = [
       );
     });
 
-    users = [...users].sort((a, b) => {
+    records = [...records].sort((a, b) => {
       if (sortOrder === "joined-asc") {
         return a.joinedAt.localeCompare(b.joinedAt);
       }
@@ -64,12 +60,12 @@ export const handlers = [
       return b.joinedAt.localeCompare(a.joinedAt);
     });
 
-    return HttpResponse.json({ users });
+    return HttpResponse.json({ items: records });
   }),
   http.get(skillFiltersEndpoint, () => {
-    return HttpResponse.json({ items: [...SKILL_OPTIONS] });
+    return HttpResponse.json({ items: [...TOKEN_OPTIONS] });
   }),
   http.get(departmentFiltersEndpoint, () => {
-    return HttpResponse.json({ items: [...DEPARTMENT_OPTIONS] });
+    return HttpResponse.json({ items: [...SECTION_OPTIONS] });
   }),
 ];

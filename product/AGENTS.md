@@ -15,14 +15,14 @@ Next.js（App Router）と MUI を用いた「検索→一覧」体験を反復�
 - `src/mocks/msw` : 開発・テストで利用するハンドラ（`browser.ts` / `node.ts`）とモックデータ
 - `src/api-client` : Orval が生成する API クライアントと `axios-instance.ts`
 - `src/services` : ビジネスロジック層（React Query のカスタムフックなど）
-- `tsp/` : TypeSpec 定義（`main.tsp` + `users.tsp` + `filters.tsp`）と `tspconfig.yaml`
+- `tsp/` : TypeSpec 定義（`main.tsp` + `sample.tsp` + `filters.tsp`）と `tspconfig.yaml`
 - `openapi/` : TypeSpec から生成される `openapi.json`
 - `tests/` : Vitest によるユニット・統合テスト (`tests/integration` は RTL+MSW)
 - `.env.example` : 各環境ファイルの雛形
 
 ## コンポーネント設計ポリシー
 - Atomic Design は採用せず、再利用の必要が生じた部分のみをコンポーネント化する。
-- 1 画面内で完結する UI は `UsersSearchPageClient.tsx` のようにページファイル内へ集約する。
+- 1 画面内で完結する UI は `SamplePageClient.tsx` のようにページファイル内へ集約する。
 - 再利用する要素を追加する場合は、`src/components/common` など意図がわかる場所へ配置してから import する。
 
 ## 初期セットアップ

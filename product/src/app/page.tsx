@@ -11,8 +11,8 @@ export default function Home() {
         TanStack Query と MUI を使った検索デモです。
       </Typography>
       <Stack direction="row" spacing={2}>
-        <Button component={Link} href="/users/search" variant="contained">
-          Users 検索
+        <Button component={Link} href="/sample/search" variant="contained">
+          サンプル検索
         </Button>
       </Stack>
     </Stack>

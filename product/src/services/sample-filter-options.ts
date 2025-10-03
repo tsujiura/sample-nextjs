@@ -1,9 +1,9 @@
-export type SkillOption = {
+export type TokenOption = {
   value: string;
   label: string;
 };
 
-export type DepartmentOption = {
+export type SectionOption = {
   value: string;
   label: string;
 };
