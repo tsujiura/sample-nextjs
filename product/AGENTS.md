@@ -11,7 +11,7 @@ Next.js（App Router）と MUI を用いた「検索→一覧」体験を反復�
 
 ## 主要ディレクトリ
 - `src/app` : App Router エントリとレイアウト。`app-providers.tsx` が MUI・React Query・MSW を束ねる
-- `src/components` : Atomic Design を意識した再利用コンポーネント
+- `src/components` : 画面固有ロジックをまとめたクライアントコンポーネント。複数画面で再利用する要素のみ個別ファイル化し、それ以外は各ページのファイル内で完結させる。
 - `src/mocks/msw` : 開発・テストで利用するハンドラ（`browser.ts` / `node.ts`）とモックデータ
 - `src/api-client` : Orval が生成する API クライアントと `axios-instance.ts`
 - `src/services` : ビジネスロジック層（React Query のカスタムフックなど）
@@ -19,6 +19,11 @@ Next.js（App Router）と MUI を用いた「検索→一覧」体験を反復�
 - `openapi/` : TypeSpec から生成される `openapi.json`
 - `tests/` : Vitest によるユニット・統合テスト (`tests/integration` は RTL+MSW)
 - `.env.example` : 各環境ファイルの雛形
+
+## コンポーネント設計ポリシー
+- Atomic Design は採用せず、再利用の必要が生じた部分のみをコンポーネント化する。
+- 1 画面内で完結する UI は `UsersSearchPageClient.tsx` のようにページファイル内へ集約する。
+- 再利用する要素を追加する場合は、`src/components/common` など意図がわかる場所へ配置してから import する。
 
 ## 初期セットアップ
 1. 依存関係をインストール: `npm install`

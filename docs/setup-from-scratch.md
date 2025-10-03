@@ -317,7 +317,7 @@ export default function AppProviders({ children }: AppProvidersProps) {
 - `src/api-client/axios-instance.ts` で Orval が利用する axios インスタンスを定義
 - `src/mocks/msw` 配下に `browser.ts`, `node.ts`, `server.ts`, `handlers.ts`, `data/*` を配置
 
-> これらのファイルは本リポジトリの実装を参考に再現してください。コンポーネントは Atomic Design に従い、`src/components/{atoms,molecules,organisms,templates}` に配置します。
+> これらのファイルは本リポジトリの実装を参考に再現してください。コンポーネントはページ単位で実装し、複数画面で使い回す必要がある要素のみ `src/components/` 配下へ切り出します。Atomic Design に沿った細分化は行いません。
 
 ## 6. テスト設定
 - `tests/setup.ts` を作成し、`@testing-library/jest-dom` の読み込みと `next/navigation` のモック、`cleanup` を定義

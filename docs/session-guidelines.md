@@ -19,6 +19,7 @@
 ## フロントエンド実装の補足
 - フォントは `src/theme/theme.ts` で `Arial, メイリオ, Meiryo, Hiragino Kaku Gothic ProN, ヒラギノ角ゴ ProN W3, sans-serif` の順で指定済み。
 - Atomic Design はチーム体制（デザイナー不在・Storybook不使用）と MUI の標準コンポーネント活用方針を踏まえ、厳密には採用しない方針。必要な共通化が生じたタイミングでピンポイントにコンポーネント化する。
+- 画面専用の UI は `UsersSearchPageClient.tsx` のようにページファイル内へ集約し、複数画面で共有したい要素だけ `src/components/` 配下へ切り出す。
 
 ## ツール・ワークフロー
 - 生成ファイル（`src/api-client/generated.ts`）を直接編集しない。仕様変更時は TypeSpec → `npm run gen` の流れで再生成する。

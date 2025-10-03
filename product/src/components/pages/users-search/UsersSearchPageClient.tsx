@@ -1,26 +1,63 @@
 "use client";
 
-import React from "react";
-
-import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import Autocomplete from "@mui/material/Autocomplete";
+import Chip from "@mui/material/Chip";
+import {
+  Box,
+  Button,
+  Checkbox,
+  CircularProgress,
+  FormControl,
+  FormControlLabel,
+  FormGroup,
+  FormLabel,
+  InputLabel,
+  ListItemText,
+  MenuItem,
+  Paper,
+  Radio,
+  RadioGroup,
+  Select,
+  type SelectChangeEvent,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { UsersListUsersSort, getSampleUserAPI } from "@/api-client/generated";
-import type {
-  DepartmentOption,
-  FeatureOption,
-  SkillOption,
-  SortOption,
-} from "@/components/molecules/users-search";
-import { UsersSearchFiltersForm, UsersSearchResultsTable, type UserRow } from "@/components/organisms/users-search";
-import { UsersSearchTemplate } from "@/components/templates/users-search";
-import { LoadingIndicator } from "@/components/atoms";
 import {
   hasMeaningfulFilters,
   parseFilters,
   type SearchFilters,
 } from "@/app/users/search/filter-utils";
+import type { DepartmentOption, SkillOption } from "@/services/user-filter-options";
+
+type FeatureOption = {
+  value: string;
+  label: string;
+};
+
+type SortOption = {
+  value: string;
+  label: string;
+};
+
+type UserRow = {
+  id: string;
+  name: string;
+  email: string;
+  department: string;
+  employment: string;
+  joinedAt: string;
+};
 
 type UsersSearchPageClientProps = {
   skillOptions: SkillOption[];
@@ -77,6 +114,37 @@ function toUsersListUsersSort(value: string | null): UsersListUsersSort | undefi
   return undefined;
 }
 
+function PageLayout({ children }: { children: ReactNode }) {
+  return (
+    <Stack spacing={4} sx={{ p: { xs: 3, md: 6 } }}>
+      <Stack spacing={1}>
+        <Typography variant="h4" component="h1">
+          Users 検索
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          複数の条件を組み合わせてユーザーを検索できます。
+        </Typography>
+      </Stack>
+      {children}
+    </Stack>
+  );
+}
+
+function LoadingSection({ label }: { label: string }) {
+  return (
+    <Stack
+      direction="row"
+      spacing={2}
+      alignItems="center"
+      justifyContent="center"
+      sx={{ py: 3 }}
+    >
+      <CircularProgress size={20} aria-label={label} />
+      <Typography component="span">{label}</Typography>
+    </Stack>
+  );
+}
+
 function UsersSearchPageContent({ skillOptions, departmentOptions }: UsersSearchPageClientProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -109,7 +177,15 @@ function UsersSearchPageContent({ skillOptions, departmentOptions }: UsersSearch
     [filterState],
   );
 
-  const departmentLabelMap = useMemo(() => new Map(departmentOptions.map((option) => [option.value, option.label])), [departmentOptions]);
+  const departmentLabelMap = useMemo(
+    () => new Map(departmentOptions.map((option) => [option.value, option.label])),
+    [departmentOptions],
+  );
+
+  const selectedSkillOptions = useMemo(
+    () => skillOptions.filter((option) => skills.includes(option.value)),
+    [skillOptions, skills],
+  );
 
   const queryKey = useMemo(
     () => [
@@ -174,52 +250,199 @@ function UsersSearchPageContent({ skillOptions, departmentOptions }: UsersSearch
     setFeatures((current) => (current.includes(value) ? current.filter((item) => item !== value) : [...current, value]));
   }, []);
 
+  const handleDepartmentChange = useCallback(
+    (event: SelectChangeEvent<string[]>) => {
+      const value = event.target.value;
+      setDepartments(typeof value === "string" ? value.split(",") : value);
+    },
+    [setDepartments],
+  );
+
   const departmentLabelLookup = useCallback((value: string) => departmentLabelMap.get(value) ?? value, [departmentLabelMap]);
   const employmentLabelLookup = useCallback((value: string) => employmentLabels[value] ?? value, []);
 
   return (
-    <UsersSearchTemplate
-      filters={
-        <UsersSearchFiltersForm
-          keyword={keyword}
-          skillOptions={skillOptions}
-          selectedSkills={skills}
-          departmentOptions={departmentOptions}
-          selectedDepartments={departments}
-          joinedAfter={joinedAfter}
-          sortOptions={sortOptions}
-          sortOrder={sortOrder}
-          featureOptions={featureOptions}
-          selectedFeatures={features}
-          onKeywordChange={setKeyword}
-          onSkillsChange={setSkills}
-          onDepartmentsChange={setDepartments}
-          onJoinedAfterChange={setJoinedAfter}
-          onSortOrderChange={setSortOrder}
-          onFeatureToggle={handleFeatureToggle}
-          onSubmit={handleSubmit}
-          isSubmitting={isFetching}
+    <PageLayout>
+      <Box
+        component="form"
+        onSubmit={handleSubmit}
+        display="grid"
+        gap={3}
+        gridTemplateColumns={{
+          xs: "repeat(1, minmax(0, 1fr))",
+          md: "repeat(3, minmax(0, 1fr))",
+        }}
+        sx={{ alignItems: "start" }}
+      >
+        <TextField
+          label="検索キーワード"
+          value={keyword}
+          onChange={(event) => setKeyword(event.target.value)}
+          placeholder="キーワードを入力"
+          fullWidth
         />
-      }
-      results={
-        <UsersSearchResultsTable
-          users={users}
-          departmentLabelLookup={departmentLabelLookup}
-          employmentLabelLookup={employmentLabelLookup}
-          isLoading={isFetching}
-          showPrompt={!filtersAreMeaningful}
+
+        <Autocomplete
+          multiple
+          disableCloseOnSelect
+          options={skillOptions}
+          value={selectedSkillOptions}
+          getOptionLabel={(option) => option.label}
+          isOptionEqualToValue={(option, selected) => option.value === selected.value}
+          onChange={(_, selected) => setSkills(selected.map((option) => option.value))}
+          renderTags={(selected, getTagProps) =>
+            selected.map((option, index) => (
+              <Chip label={option.label} {...getTagProps({ index })} key={option.value} />
+            ))
+          }
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="スキル"
+              placeholder="スキルを選択"
+              InputLabelProps={{ ...params.InputLabelProps, shrink: true }}
+            />
+          )}
         />
-      }
-    />
+
+        <FormControl fullWidth>
+          <InputLabel id="department-select-label">部署</InputLabel>
+          <Select
+            labelId="department-select-label"
+            label="部署"
+            multiple
+            value={departments}
+            onChange={handleDepartmentChange}
+            renderValue={(selected) =>
+              (selected as string[])
+                .map((value) => departmentLabelMap.get(value) ?? value)
+                .join(", ")
+            }
+          >
+            {departmentOptions.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                <Checkbox checked={departments.includes(option.value)} />
+                <ListItemText primary={option.label} />
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <TextField
+          label="入社日 (以降)"
+          type="date"
+          value={joinedAfter ?? ""}
+          onChange={(event) => setJoinedAfter(event.target.value || null)}
+          InputLabelProps={{ shrink: true }}
+          fullWidth
+        />
+
+        <FormControl component="fieldset">
+          <FormLabel>並び順</FormLabel>
+          <RadioGroup
+            row
+            value={sortOrder}
+            onChange={(event) => setSortOrder(event.target.value)}
+          >
+            {sortOptions.map((option) => (
+              <FormControlLabel
+                key={option.value}
+                value={option.value}
+                control={<Radio />}
+                label={option.label}
+              />
+            ))}
+          </RadioGroup>
+        </FormControl>
+
+        <Stack spacing={2}>
+          <FormControl component="fieldset">
+            <FormLabel>特性</FormLabel>
+            <FormGroup row>
+              {featureOptions.map((option) => (
+                <FormControlLabel
+                  key={option.value}
+                  control={
+                    <Checkbox
+                      checked={features.includes(option.value)}
+                      onChange={() => handleFeatureToggle(option.value)}
+                    />
+                  }
+                  label={option.label}
+                />
+              ))}
+            </FormGroup>
+          </FormControl>
+
+          <Box display="flex" justifyContent={{ xs: "flex-start", md: "flex-end" }}>
+            <Button type="submit" variant="contained" disabled={isFetching} sx={{ minWidth: 160 }}>
+              検索
+            </Button>
+          </Box>
+        </Stack>
+      </Box>
+
+      <Paper variant="outlined">
+        <Table aria-label="検索結果">
+          <TableHead>
+            <TableRow>
+              <TableCell>名前</TableCell>
+              <TableCell>メールアドレス</TableCell>
+              <TableCell>部署</TableCell>
+              <TableCell>雇用形態</TableCell>
+              <TableCell>入社日</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {isFetching && (
+              <TableRow>
+                <TableCell colSpan={5} align="center">
+                  <LoadingSection label="検索中..." />
+                </TableCell>
+              </TableRow>
+            )}
+
+            {!isFetching && !filtersAreMeaningful && (
+              <TableRow>
+                <TableCell colSpan={5} align="center">
+                  <Typography component="span">条件を入力して検索してください。</Typography>
+                </TableCell>
+              </TableRow>
+            )}
+
+            {!isFetching && filtersAreMeaningful && users.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={5} align="center">
+                  <Typography component="span">条件に一致するユーザーが見つかりませんでした。</Typography>
+                </TableCell>
+              </TableRow>
+            )}
+
+            {!isFetching && users.length > 0 &&
+              users.map((user) => (
+                <TableRow key={user.id}>
+                  <TableCell>{user.name}</TableCell>
+                  <TableCell>{user.email}</TableCell>
+                  <TableCell>{departmentLabelLookup(user.department)}</TableCell>
+                  <TableCell>{employmentLabelLookup(user.employment)}</TableCell>
+                  <TableCell>{user.joinedAt}</TableCell>
+                </TableRow>
+              ))}
+          </TableBody>
+        </Table>
+      </Paper>
+    </PageLayout>
   );
 }
 
 function UsersSearchPageFallback() {
   return (
-    <UsersSearchTemplate
-      filters={<LoadingIndicator label="条件を読み込み中..." />}
-      results={<LoadingIndicator label="読み込み中..." />}
-    />
+    <PageLayout>
+      <LoadingSection label="条件を読み込み中..." />
+      <Paper variant="outlined">
+        <LoadingSection label="読み込み中..." />
+      </Paper>
+    </PageLayout>
   );
 }
 
